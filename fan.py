@@ -1,5 +1,6 @@
 from pathlib import Path
 # import subprocess
+import time
 
 
 class Fan:
@@ -46,3 +47,19 @@ class Fan:
     @property
     def rpm(self):
         return int(self.path_rpm.read_text())
+
+    # ---
+
+    def spin_up_to(self, speed, wait_interval=2, min_wait=5, max_wait=15):
+        """Sets target speed and waits until it is reached"""
+        self.fan_speed = speed
+        prev_rpm = 0
+        next_rpm = self.rpm
+        wait_time = 0
+        while (next_rpm > prev_rpm or wait_time < min_wait) and wait_time < max_wait:
+            print(f'Still spinning up… ({prev_rpm} → {next_rpm})')
+            time.sleep(wait_interval)
+            wait_time += wait_interval
+            prev_rpm = next_rpm
+            next_rpm = self.rpm
+        print(f'Done: {prev_rpm} → {next_rpm}')
