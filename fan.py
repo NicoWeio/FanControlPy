@@ -64,7 +64,7 @@ class Fan:
                 print('Fan stopped')
                 break
 
-            print(f'Still pinning {direction}… ({prev_rpm} → {next_rpm})')
+            print(f'Still spinning {direction}… ({prev_rpm} → {next_rpm})')
             time.sleep(wait_interval)
             wait_time += wait_interval
             prev_rpm = next_rpm
