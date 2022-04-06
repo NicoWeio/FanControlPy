@@ -62,9 +62,9 @@ class Fan:
     # ---
 
     def spin_up_or_down_to(self, speed, wait_interval=2, min_wait=5, max_wait=15):
-        """Sets target speed and waits until it is reached"""
+        """Sets target speed (0-1) and waits until it is reached"""
+        assert 0 <= speed <= 1
         direction = 'up' if speed > self.fan_speed else 'down'
-
         self.fan_speed = speed
         prev_rpm = 0 if direction == 'up' else self.rpm
         next_rpm = self.rpm if direction == 'up' else 0
