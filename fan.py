@@ -4,9 +4,10 @@ import time
 
 
 class Fan:
-    def __init__(self, num, min_speed=0):
+    def __init__(self, num, min_speed=0, fan_curve=None):
         self.num = num
         self.min_speed = min_speed
+        self.fan_curve = fan_curve
 
     @property
     def basepath(self):
