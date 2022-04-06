@@ -34,14 +34,14 @@ class Fan:
 
     @property
     def fan_speed(self):
-        """Target speed from 0-255"""
-        return int(self.basepath_path.read_text())
+        """Target speed from 0-1"""
+        return int(self.basepath_path.read_text()) / 255
 
     @fan_speed.setter
     def fan_speed(self, speed):
-        """Target speed from 0-255"""
-        assert 0 <= speed <= 255
-        self.basepath_path.write_text(str(speed))
+        """Target speed from 0-1"""
+        assert 0 <= speed <= 1
+        self.basepath_path.write_text(str(int(speed * 255)))
         assert self.fan_speed == speed
 
     @property
