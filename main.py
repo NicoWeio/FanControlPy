@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-from fan_curve import FanCurve
 import code
 from pathlib import Path
 import subprocess
 import time
 
-from config import MY_FANS
-from fan import Fan
-from temp_sensor import TempSensor
+from fancontrolpy.config import MY_FANS
+from fancontrolpy.fan import Fan
+from fancontrolpy.fan_curve import FanCurve
+from fancontrolpy.temp_sensor import TempSensor
 
 fans = [fan for fan in MY_FANS if fan.fan_curve]
 tempSensor = TempSensor(1)

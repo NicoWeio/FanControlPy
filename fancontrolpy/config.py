@@ -1,5 +1,5 @@
-from fan import Fan
-from fan_curve import FanCurve
+from .fan import Fan
+from .fan_curve import FanCurve
 
 MY_FANS = [
     Fan(
