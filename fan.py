@@ -4,8 +4,9 @@ import time
 
 
 class Fan:
-    def __init__(self, num):
+    def __init__(self, num, min_speed=0):
         self.num = num
+        self.min_speed = min_speed
 
     @property
     def basepath(self):
@@ -25,12 +26,20 @@ class Fan:
 
     @property
     def enable(self):
-        return bool(self.path_enable.read_text())
+        # Fan speed control method:
+        #         0: no fan speed control (i.e. fan at full speed)
+        #         1: manual fan speed control enabled (using pwm[1-*])
+        #         2+: automatic fan speed control enabled
+        #         Check individual chip documentation files for automatic mode
+        #         details.
+        return self.path_enable.read_text().strip() == '1'
 
     @enable.setter
     def enable(self, value):
         assert isinstance(value, bool)
         self.basepath_path.write_text(str(int(value)))
+        time.sleep(1)
+        assert self.enable == value, f'{self.enable} != {value}'
 
     @property
     def fan_speed_internal(self):
@@ -38,11 +47,11 @@ class Fan:
         return int(self.basepath_path.read_text())
 
     @fan_speed_internal.setter
-    def fan_speed_internal(self, speed):
+    def fan_speed_internal(self, speed_internal):
         """Target speed from 0-255"""
-        assert 0 <= speed <= 255
-        self.basepath_path.write_text(str(int(speed)))
-        assert self.fan_speed_internal == speed, f'{self.fan_speed_internal} != {speed}'
+        assert 0 <= speed_internal <= 255
+        self.basepath_path.write_text(str(int(speed_internal)))
+        assert self.fan_speed_internal == speed_internal, f'{self.fan_speed_internal} != {speed_internal}'
 
     @property
     def fan_speed(self):
@@ -53,7 +62,9 @@ class Fan:
     def fan_speed(self, speed):
         """Target speed from 0-1"""
         assert 0 <= speed <= 1
-        self.fan_speed_internal = int(speed * 255)
+        # stop fan if the desired speed is below its min_speed
+        actual_speed = speed if speed >= self.min_speed else 0
+        self.fan_speed_internal = int(actual_speed * 255)
 
     @property
     def rpm(self):
@@ -62,7 +73,7 @@ class Fan:
     # ---
 
     def spin_up_or_down_to(self, speed, wait_interval=2, min_wait=5, max_wait=15):
-        """Sets target speed (0-1) and waits until it is reached"""
+        """Sets target speed(0-1) and waits until it is reached"""
         assert 0 <= speed <= 1
         direction = 'up' if speed > self.fan_speed else 'down'
         self.fan_speed = speed

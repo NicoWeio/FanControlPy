@@ -16,7 +16,7 @@ MY_FANS = {
 
 def main():
     for fan_name, fan in MY_FANS.items():
-        print(f'{fan_name}: {fan.fan_speed}/255, {fan.rpm} RPM')
+        print(f'{fan_name}: {fan.fan_speed:.0%}, {fan.rpm} RPM')
     print('---')
 
 
