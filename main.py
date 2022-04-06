@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
+from fan_curve import FanCurve
 import code
 from pathlib import Path
 import subprocess
+import time
 
 from fan import Fan
-
+from temp_sensor import TempSensor
 
 MY_FANS = {
     'CPU': Fan(2),
@@ -13,14 +15,27 @@ MY_FANS = {
     'Rear': Fan(5),
 }
 
-for fan_name, fan in MY_FANS.items():
-    print(f'→ {fan_name}: {fan.fan_speed}')
+fan = MY_FANS['Front']  # for testing
+tempSensor = TempSensor(1)
 
-    print(f'Speed before: {fan.fan_speed}')
-    print(f'Enable before: {fan.enable}')
-    # fan.enable = False
-    fan.fan_speed = 0
-    print(f'Speed after: {fan.fan_speed}')
-    print(f'Enable after: {fan.enable}')
+fanCurvePoints = [
+    (50, 0.5),
+    (100, 1),
+]
+fanCurve = FanCurve(fanCurvePoints)
 
-code.interact(local=locals())
+if not fan.enable:
+    print('Enabling fan')
+    fan.enable = True
+
+while True:
+    calculatedSpeed = fanCurve.get_power(tempSensor.temp)
+
+    print(f'RPM: {fan.rpm}')
+    print(f'Current speed: {fan.fan_speed:.2f}')
+    print(f'Current temperature: {tempSensor.temp}')
+    print(f'Calculated speed: {calculatedSpeed:.2f}')
+
+    fan.fan_speed = calculatedSpeed
+
+    time.sleep(5)

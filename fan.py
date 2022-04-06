@@ -33,16 +33,27 @@ class Fan:
         self.basepath_path.write_text(str(int(value)))
 
     @property
+    def fan_speed_internal(self):
+        """Target speed from 0-255"""
+        return int(self.basepath_path.read_text())
+
+    @fan_speed_internal.setter
+    def fan_speed_internal(self, speed):
+        """Target speed from 0-255"""
+        assert 0 <= speed <= 255
+        self.basepath_path.write_text(str(int(speed)))
+        assert self.fan_speed_internal == speed, f'{self.fan_speed_internal} != {speed}'
+
+    @property
     def fan_speed(self):
         """Target speed from 0-1"""
-        return int(self.basepath_path.read_text()) / 255
+        return self.fan_speed_internal / 255
 
     @fan_speed.setter
     def fan_speed(self, speed):
         """Target speed from 0-1"""
         assert 0 <= speed <= 1
-        self.basepath_path.write_text(str(int(speed * 255)))
-        assert self.fan_speed == speed
+        self.fan_speed_internal = int(speed * 255)
 
     @property
     def rpm(self):
