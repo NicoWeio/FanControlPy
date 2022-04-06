@@ -1,0 +1,10 @@
+[Unit]
+Description=FanControlPy daemon
+
+[Service]
+ExecStart=/home/nicolai/Daten/Programmieren/FanControlPy/main.py
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=default.target

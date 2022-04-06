@@ -1,3 +1,12 @@
+# Installation
+```sh
+sudo ln -s '/path/to/FanControlPy/fancontrolpy_daemon.service' fancontrolpy_daemon.service  # or move it there
+sudo systemctl enable fancontrolpy_daemon.service
+sudo systemctl start fancontrolpy_daemon.service
+```
+
+---
+
 # Why?
 Because I dislike shell scripts.
 They're cluttered and not easily hackable.
