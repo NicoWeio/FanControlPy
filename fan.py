@@ -73,7 +73,10 @@ class Fan:
         # actual_speed = speed if speed >= self.min_speed else 0
         # OR
         # B) keep it spinning at min_speed
-        actual_speed = max(speed, self.min_speed)
+        # actual_speed = max(speed, self.min_speed)
+        # OR
+        # C) keep it spinning at min_speed only if speed > 0
+        actual_speed = max(speed, self.min_speed) if speed > 0 else 0
 
         self.fan_speed_internal = int(actual_speed * 255)
 

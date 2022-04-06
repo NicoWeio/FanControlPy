@@ -4,7 +4,12 @@ from fan_curve import FanCurve
 MY_FANS = [
     Fan(
         num=2,
-        name="CPU"
+        name="CPU",
+        min_speed=0,
+        fan_curve=FanCurve([
+            (60, 0),  # still spinning at 0%
+            (80, 1),
+        ]),
     ),
     Fan(
         num=3,
@@ -17,6 +22,11 @@ MY_FANS = [
     ),
     Fan(
         num=5,
-        name="Rear"
+        name="Rear",
+        min_speed=0.4,
+        fan_curve=FanCurve([
+            (50, 0),
+            (75, 1),
+        ]),
     ),
 ]

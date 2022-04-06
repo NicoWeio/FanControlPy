@@ -10,7 +10,7 @@ from config import MY_FANS
 from fan import Fan
 from temp_sensor import TempSensor
 
-fans = MY_FANS
+fans = [fan for fan in MY_FANS if fan.fan_curve]
 tempSensor = TempSensor(1)
 
 for fan in fans:
@@ -18,19 +18,21 @@ for fan in fans:
         print(f"Enabling {fan}")
         fan.enable = True
 
-while True:
-    print(f'Current temperature: {tempSensor.temp:.1f} °C')
-    for fan in fans:
-        if not fan.fan_curve:
-            continue
-        try:
+try:
+    while True:
+        print(f'Current temperature: {tempSensor.temp:.1f} °C')
+        for fan in fans:
             calculatedSpeed = fan.fan_curve.get_power(tempSensor.temp)
-
             print(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
-
             fan.fan_speed = calculatedSpeed
+        time.sleep(5)
 
-            time.sleep(5)
-        except KeyboardInterrupt:
+except KeyboardInterrupt:
+    print('\nExiting; resetting fans...')
+    for fan in fans:
+        try:
+            fan.fan_speed = 1
             fan.enable = False
-            break
+        except AssertionError:
+            print(f'Failed to reset {fan}')
+            pass
