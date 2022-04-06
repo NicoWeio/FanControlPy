@@ -1,5 +1,6 @@
 [Unit]
 Description=FanControlPy daemon
+After=lm_sensors.service
 
 [Service]
 ExecStart=/home/nicolai/Daten/Programmieren/FanControlPy/main.py
@@ -7,4 +8,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
