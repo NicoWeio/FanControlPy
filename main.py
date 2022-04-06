@@ -19,13 +19,19 @@ for fan in fans:
         fan.enable = True
 
 try:
+    last_handled_temp = 0  # reasonable default
     while True:
-        print(f'Current temperature: {tempSensor.temp:.1f} °C')
-        for fan in fans:
-            calculatedSpeed = fan.fan_curve.get_power(tempSensor.temp)
-            print(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
-            fan.fan_speed = calculatedSpeed
-        time.sleep(5)
+        temp = tempSensor.temp
+        print(f'Current temperature: {temp:.1f} °C')
+        if abs(temp - last_handled_temp) < 1:
+            print('No significant change in temperature, skipping…')
+        else:
+            last_handled_temp = temp
+            for fan in fans:
+                calculatedSpeed = fan.fan_curve.get_power(temp)
+                print(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
+                fan.fan_speed = calculatedSpeed
+        time.sleep(10)
 
 except KeyboardInterrupt:
     print('\nExiting; resetting fans...')
