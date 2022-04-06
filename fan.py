@@ -4,10 +4,14 @@ import time
 
 
 class Fan:
-    def __init__(self, num, min_speed=0, fan_curve=None):
+    def __init__(self, num, name=None, min_speed=0, fan_curve=None):
+        self.name = name or f'#{num}'
         self.num = num
         self.min_speed = min_speed
         self.fan_curve = fan_curve
+
+    def __repr__(self):
+        return f'<Fan "{self.name}">'
 
     @property
     def basepath(self):

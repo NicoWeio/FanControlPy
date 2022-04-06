@@ -13,20 +13,20 @@ from temp_sensor import TempSensor
 fans = MY_FANS
 tempSensor = TempSensor(1)
 
-for fan_name, fan in fans.items():
+for fan in fans:
     if not fan.enable:
-        print(f"Enabling {fan_name}")
+        print(f"Enabling {fan}")
         fan.enable = True
 
 while True:
     print(f'Current temperature: {tempSensor.temp:.1f} °C')
-    for fan_name, fan in fans.items():
+    for fan in fans:
         if not fan.fan_curve:
             continue
         try:
             calculatedSpeed = fan.fan_curve.get_power(tempSensor.temp)
 
-            print(f"{fan_name}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
+            print(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
 
             fan.fan_speed = calculatedSpeed
 
