@@ -67,8 +67,14 @@ class Fan:
     def fan_speed(self, speed):
         """Target speed from 0-1"""
         assert 0 <= speed <= 1
-        # stop fan if the desired speed is below its min_speed
-        actual_speed = speed if speed >= self.min_speed else 0
+
+        # If the desired speed is below its min_speed…
+        # A) stop the fan
+        # actual_speed = speed if speed >= self.min_speed else 0
+        # OR
+        # B) keep it spinning at min_speed
+        actual_speed = max(speed, self.min_speed)
+
         self.fan_speed_internal = int(actual_speed * 255)
 
     @property
