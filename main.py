@@ -36,17 +36,17 @@ last_temps: list[float] = []
 try:
     last_handled_temp = 0.0  # reasonable default
     while True:
-        temp = tempSensor.temp
-        last_temps = last_temps[-(AVG_SAMPLES-1):] + [temp]
+        current_temp = tempSensor.temp
+        last_temps = last_temps[-(AVG_SAMPLES-1):] + [current_temp]
         smooth_temp = sum(last_temps) / len(last_temps)
-        print(f'Current temperature: {temp:.1f} °C, average: {smooth_temp:.1f} °C')
+        print(f'Current temperature: {current_temp:.1f} °C, average: {smooth_temp:.1f} °C')
         if abs(smooth_temp - last_handled_temp) < 1:
             # print('No significant change in temperature, skipping…')
             pass
         else:
             last_handled_temp = smooth_temp
             for fan in fans:
-                calculatedSpeed = fan.fan_curve.get_power(temp)
+                calculatedSpeed = fan.fan_curve.get_power(smooth_temp)
                 print(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
                 fan.fan_speed = calculatedSpeed
         time.sleep(INTERVAL_SECONDS)
