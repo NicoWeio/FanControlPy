@@ -1,5 +1,4 @@
 from pathlib import Path
-# import subprocess
 import time
 
 
@@ -42,7 +41,8 @@ class Fan:
     @enable.setter
     def enable(self, value):
         assert isinstance(value, bool)
-        self.basepath_path.write_text(str(int(value)))
+        print(f"setting enable to {str(int(value))}")
+        self.path_enable.write_text(str(int(value)))
         time.sleep(1)
         assert self.enable == value, f'{self.enable} != {value}'
 
