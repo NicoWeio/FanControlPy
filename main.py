@@ -16,7 +16,11 @@ tempSensor = TempSensor(1)
 for fan in fans:
     if not fan.enable:
         print(f"Enabling {fan}")
+        try:
         fan.enable = True
+        except AssertionError:
+            # Setting a speed might enable it, though, so don't fail here.
+            print(f"Failed to enable {fan}")
 
 try:
     last_handled_temp = 0  # reasonable default
