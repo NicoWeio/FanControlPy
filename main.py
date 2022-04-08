@@ -10,6 +10,7 @@ from fancontrolpy.fan import Fan
 from fancontrolpy.fan_curve import FanCurve
 from fancontrolpy.temp_sensor import TempSensor
 
+# TODO: move to config ↓
 # how often to update the fan speed
 INTERVAL_SECONDS = 5
 # how many seconds to average over
@@ -48,7 +49,10 @@ try:
             for fan in fans:
                 calculatedSpeed = fan.fan_curve.get_power(smooth_temp)
                 print(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
-                fan.fan_speed = calculatedSpeed
+                try:
+                    fan.fan_speed = calculatedSpeed
+                except AssertionError:
+                    print(f"Failed to set {fan} to {calculatedSpeed:.0%}!")
         time.sleep(INTERVAL_SECONDS)
 
 except KeyboardInterrupt:
