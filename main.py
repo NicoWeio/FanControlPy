@@ -33,6 +33,7 @@ def main(loglevel):
             except AssertionError:
                 # Setting a speed might enable it, though, so don't fail here.
                 logging.error(f"Failed to enable {fan}")
+    logging.info("Initialization complete")
 
     last_temps: list[float] = []
 
@@ -72,6 +73,7 @@ def main(loglevel):
             except AssertionError:
                 logging.error(f"Failed to reset {fan}")
                 pass
+        logging.info("Reset complete")
 
 
 if __name__ == '__main__':
