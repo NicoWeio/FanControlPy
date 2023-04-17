@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-import code
-from pathlib import Path
-import subprocess
+import logging
 import time
 
 from fancontrolpy.config import MY_FANS
-from fancontrolpy.fan import Fan
-from fancontrolpy.fan_curve import FanCurve
 from fancontrolpy.temp_sensor import TempSensor
+
+logging.basicConfig(level=logging.DEBUG)
 
 # TODO: move to config ↓
 # how often to update the fan speed
@@ -25,12 +23,12 @@ tempSensor = TempSensor(1)
 
 for fan in fans:
     if not fan.enable:
-        print(f"Enabling {fan}")
+        logging.info(f"Enabling {fan}")
         try:
             fan.enable = True
         except AssertionError:
             # Setting a speed might enable it, though, so don't fail here.
-            print(f"Failed to enable {fan}")
+            logging.error(f"Failed to enable {fan}")
 
 last_temps: list[float] = []
 
@@ -40,27 +38,33 @@ try:
         current_temp = tempSensor.temp
         last_temps = last_temps[-(AVG_SAMPLES-1):] + [current_temp]
         smooth_temp = sum(last_temps) / len(last_temps)
-        print(f'Current temperature: {current_temp:.1f} °C, average: {smooth_temp:.1f} °C')
+        logging.debug(f"Current temperature: {current_temp:.1f} °C, average: {smooth_temp:.1f} °C")
         if abs(smooth_temp - last_handled_temp) < 1:
-            # print('No significant change in temperature, skipping…')
+            # logging.debug('No significant change in temperature, skipping…')
             pass
         else:
             last_handled_temp = smooth_temp
             for fan in fans:
                 calculatedSpeed = fan.fan_curve.get_power(smooth_temp)
-                print(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
+                logging.debug(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
                 try:
                     fan.fan_speed = calculatedSpeed
                 except AssertionError:
-                    print(f"Failed to set {fan} to {calculatedSpeed:.0%}!")
+                    logging.error(f"Failed to set {fan} to {calculatedSpeed:.0%}!")
+                    if not fan.enable:
+                        logging.warning(f"Trying to re-enable {fan}")
+                        try:
+                            fan.enable = True
+                        except AssertionError:
+                            logging.error(f"Failed to enable {fan}")
         time.sleep(INTERVAL_SECONDS)
 
 except KeyboardInterrupt:
-    print('\nExiting; resetting fans...')
+    logging.info("\nExiting; resetting fans...")
     for fan in fans:
         try:
             fan.fan_speed = 1
             fan.enable = False
         except AssertionError:
-            print(f'Failed to reset {fan}')
+            logging.error(f"Failed to reset {fan}")
             pass

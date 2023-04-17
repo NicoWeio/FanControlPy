@@ -1,5 +1,6 @@
-from pathlib import Path
+import logging
 import time
+from pathlib import Path
 
 
 class Fan:
@@ -41,7 +42,7 @@ class Fan:
     @enable.setter
     def enable(self, value):
         assert isinstance(value, bool)
-        print(f"setting enable to {str(int(value))}")
+        logging.debug(f"setting enable to {str(int(value))}")
         self.path_enable.write_text(str(int(value)))
         time.sleep(1)
         assert self.enable == value, f'{self.enable} != {value}'
@@ -97,12 +98,12 @@ class Fan:
 
         while ((next_rpm > prev_rpm if direction == 'up' else next_rpm < prev_rpm) or wait_time < min_wait) and wait_time < max_wait:
             if direction == 'down' and self.rpm == 0:
-                print('Fan stopped')
+                logging.info("Fan stopped")
                 break
 
-            print(f'Still spinning {direction}… ({prev_rpm} → {next_rpm})')
+            logging.info(f"Still spinning {direction}… ({prev_rpm} → {next_rpm})")
             time.sleep(wait_interval)
             wait_time += wait_interval
             prev_rpm = next_rpm
             next_rpm = self.rpm
-        print(f'Done: {prev_rpm} → {next_rpm}')
+        logging.info(f"Done: {prev_rpm} → {next_rpm}")
