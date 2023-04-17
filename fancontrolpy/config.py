@@ -8,13 +8,15 @@ MY_FANS = [
         min_speed=0,
         fan_curve=FanCurve([
             (60, 0),  # still spinning at 0%
+            # (70, 0.4),
             (80, 1),
         ]),
     ),
     Fan(
         num=3,
         name="Front",
-        min_speed=0.58,
+        # min_speed=0.58,
+        min_speed=0.75,
         fan_curve=FanCurve([
             (70, 0),
             (75, 1),

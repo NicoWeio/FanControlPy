@@ -14,11 +14,11 @@ class Fan:
 
     @property
     def basepath(self):
-        return f'/sys/class/hwmon/hwmon2/pwm{self.num}'
+        return f'/sys/class/hwmon/hwmon3/pwm{self.num}'
 
     @property
     def path_rpm(self):
-        return Path(f'/sys/class/hwmon/hwmon2/fan{self.num}_input')
+        return Path(f'/sys/class/hwmon/hwmon3/fan{self.num}_input')
 
     @property
     def basepath_path(self):
