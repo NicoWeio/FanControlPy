@@ -1,5 +1,7 @@
 # Installation
 ```sh
+# cd /etc/systemd/system
+# modify the /path/to/FanControlPy/main.py in the fancontrolpy_daemon.service file
 sudo ln -s '/path/to/FanControlPy/fancontrolpy_daemon.service' fancontrolpy_daemon.service  # or move it there
 sudo systemctl enable fancontrolpy_daemon.service
 sudo systemctl start fancontrolpy_daemon.service

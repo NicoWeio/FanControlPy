@@ -2,35 +2,35 @@ import logging
 import time
 from pathlib import Path
 
+from .config import HWMON_PATH
+from .fan_curve import FanCurve
+
 
 class Fan:
-    def __init__(self, num, name=None, min_speed=0, fan_curve=None):
+    def __init__(self, num: int, name: str | None = None, min_speed: float = 0, fan_curve: FanCurve | None = None):
         self.name = name or f'#{num}'
         self.num = num
         self.min_speed = min_speed
         self.fan_curve = fan_curve
 
     def __repr__(self):
-        return f'<Fan "{self.name}">'
+        return f'<Fan "{self.name}" (#{self.num})>'
 
     @property
-    def basepath(self):
-        return f'/sys/class/hwmon/hwmon3/pwm{self.num}'
+    def path_base(self) -> Path:
+        return HWMON_PATH / f'pwm{self.num}'
 
     @property
-    def path_rpm(self):
-        return Path(f'/sys/class/hwmon/hwmon3/fan{self.num}_input')
+    def path_rpm(self) -> Path:
+        return HWMON_PATH / f'fan{self.num}_input'
 
     @property
-    def basepath_path(self):
-        return Path(self.basepath)
+    def path_enable(self) -> Path:
+        # return self.basename.with_name(self.basename.name + '_enable')
+        return HWMON_PATH / f'pwm{self.num}_enable'
 
     @property
-    def path_enable(self):
-        return Path(self.basepath + '_enable')
-
-    @property
-    def enable(self):
+    def enabled(self) -> bool:
         # Fan speed control method:
         #         0: no fan speed control (i.e. fan at full speed)
         #         1: manual fan speed control enabled (using pwm[1-*])
@@ -39,24 +39,29 @@ class Fan:
         #         details.
         return self.path_enable.read_text().strip() == '1'
 
-    @enable.setter
-    def enable(self, value):
+    @enabled.setter
+    def enabled(self, value):
         assert isinstance(value, bool)
-        logging.debug(f"setting enable to {str(int(value))}")
+        logging.debug(f"setting enabled to {str(int(value))}")
         self.path_enable.write_text(str(int(value)))
-        time.sleep(1)
-        assert self.enable == value, f'{self.enable} != {value}'
+        for _ in range(3):
+            if self.enabled == value:
+                break
+            logging.debug(f"waiting for enabled to be {value}")
+            time.sleep(1)
+
+        assert self.enabled == value, f'{self.enabled} != {value}'  # FIXME: other code expects this to raise an AssertionError
 
     @property
     def fan_speed_internal(self):
         """Target speed from 0-255"""
-        return int(self.basepath_path.read_text())
+        return int(self.path_base.read_text())
 
     @fan_speed_internal.setter
     def fan_speed_internal(self, speed_internal):
         """Target speed from 0-255"""
         assert 0 <= speed_internal <= 255
-        self.basepath_path.write_text(str(int(speed_internal)))
+        self.path_base.write_text(str(int(speed_internal)))
         assert self.fan_speed_internal == speed_internal, f'{self.fan_speed_internal} != {speed_internal}'
 
     @property

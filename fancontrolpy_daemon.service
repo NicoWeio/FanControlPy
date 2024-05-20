@@ -3,7 +3,7 @@ Description=FanControlPy daemon
 After=lm_sensors.service
 
 [Service]
-ExecStart=/home/nicolai/Daten/Programmieren/FanControlPy/main.py --loglevel info
+ExecStart=/home/nicolai/Daten/Programmieren/_System/FanControlPy/main.py --loglevel info
 Restart=always
 RestartSec=30
 

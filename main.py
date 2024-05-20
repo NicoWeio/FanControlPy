@@ -2,9 +2,10 @@
 
 import logging
 import time
+
 import click
 
-from fancontrolpy.config import MY_FANS
+from fancontrolpy.fanconfig import MY_FANS
 from fancontrolpy.temp_sensor import TempSensor
 
 # TODO: move to config ↓
@@ -18,18 +19,18 @@ assert AVG_SAMPLES >= 2  # needed for correct array indexing
 
 
 @click.command()
-@click.option('--loglevel', default='INFO', help="Set the log level", type=click.Choice(['debug', 'info', 'warning', 'error', 'critical']))
+@click.option('--loglevel', default='info', help="Set the log level", type=click.Choice(['debug', 'info', 'warning', 'error', 'critical']))
 def main(loglevel):
     logging.basicConfig(level=loglevel.upper())
 
     fans = [fan for fan in MY_FANS if fan.fan_curve]
-    tempSensor = TempSensor(1)
+    temp_sensor = TempSensor(1)
 
     for fan in fans:
-        if not fan.enable:
+        if not fan.enabled:
             logging.info(f"Enabling {fan}")
             try:
-                fan.enable = True
+                fan.enabled = True
             except AssertionError:
                 # Setting a speed might enable it, though, so don't fail here.
                 logging.error(f"Failed to enable {fan}")
@@ -40,7 +41,7 @@ def main(loglevel):
     try:
         last_handled_temp = 0.0  # reasonable default
         while True:
-            current_temp = tempSensor.temp
+            current_temp = temp_sensor.temp
             last_temps = last_temps[-(AVG_SAMPLES-1):] + [current_temp]
             smooth_temp = sum(last_temps) / len(last_temps)
             logging.debug(f"Current temperature: {current_temp:.1f} °C, average: {smooth_temp:.1f} °C")
@@ -50,16 +51,17 @@ def main(loglevel):
             else:
                 last_handled_temp = smooth_temp
                 for fan in fans:
-                    calculatedSpeed = fan.fan_curve.get_power(smooth_temp)
-                    logging.debug(f"{fan}: {calculatedSpeed:.0%}, {fan.rpm} RPM")
+                    assert fan.fan_curve  # TODO
+                    calculated_speed = fan.fan_curve.get_power(smooth_temp)
+                    logging.debug(f"{fan}: {calculated_speed:.0%}, {fan.rpm} RPM")
                     try:
-                        fan.fan_speed = calculatedSpeed
+                        fan.fan_speed = calculated_speed
                     except AssertionError:
-                        logging.error(f"Failed to set {fan} to {calculatedSpeed:.0%}!")
-                        if not fan.enable:
+                        logging.error(f"Failed to set {fan} to {calculated_speed:.0%}!")
+                        if not fan.enabled:
                             logging.warning(f"Trying to re-enable {fan}")
                             try:
-                                fan.enable = True
+                                fan.enabled = True
                             except AssertionError:
                                 logging.error(f"Failed to enable {fan}")
             time.sleep(INTERVAL_SECONDS)
@@ -69,7 +71,7 @@ def main(loglevel):
         for fan in fans:
             try:
                 fan.fan_speed = 1
-                fan.enable = False
+                fan.enabled = False
             except AssertionError:
                 logging.error(f"Failed to reset {fan}")
                 pass
